@@ -1,0 +1,8 @@
+FROM  pytorch/pytorch
+RUN apt update && apt install build-essential ffmpeg libsm6 libxext6 git vim -y
+ADD ./requirements.txt /tmp/
+RUN pip install -r /tmp/requirements.txt
+
+RUN python -m atari_py.import_roms ./ROMS
+
+ARG CACHEBUST=1

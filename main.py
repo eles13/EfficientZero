@@ -1,6 +1,10 @@
 import argparse
 import logging.config
 import os
+import wandb
+
+os.system('cd core/ctree && bash make.sh && cd ../../')
+os.system('python -m atari_py.import_roms ./docker/ROMS/')
 
 import numpy as np
 import ray
@@ -53,9 +57,13 @@ if __name__ == '__main__':
     parser.add_argument('--load_model', action='store_true', default=False, help='choose to load model')
     parser.add_argument('--model_path', type=str, default='./results/test_model.p', help='load model path')
     parser.add_argument('--object_store_memory', type=int, default=150 * 1024 * 1024 * 1024, help='object store memory')
+    parser.add_argument('--use_wandb', action='store_true', default=False, help='whether to use wandb logging')
 
     # Process arguments
     args = parser.parse_args()
+
+    if args.use_wandb:
+        wandb.init(project=f'EfficientZero_{args.env}_seed_{args.seed}', sync_tensorboard=True, anonymous="allow", )
     args.device = 'cuda' if (not args.no_cuda) and torch.cuda.is_available() else 'cpu'
     assert args.revisit_policy_search_rate is None or 0 <= args.revisit_policy_search_rate <= 1, \
         ' Revisit policy search rate should be in [0,1]'

@@ -1,0 +1,17 @@
+container:
+  image: "effzero:latest"
+  command: 'python main.py --env BreakoutNoFrameskip-v4 --case atari --opr train --amp_type torch_amp --num_gpus 1 --num_cpus 10 --cpu_actor 1 --gpu_actor 1 --force --use_wandb'
+
+  tty: True
+  environment:
+    - "OMP_NUM_THREADS=1"
+    - "MKL_NUM_THREADS=1"
+    - "NVIDIA_VISIBLE_DEVICES=0"
+    - "WANDB_API_KEY=8515550f7cfdc543c2a015b91534e7bab155c563"
+code:
+  folder: "."
+  forward_environment_keys: ["WANDB_API_KEY"]
+  ignore: [".git"]
+host_config:
+  runtime: nvidia
+  shm_size: '24096m'
