@@ -5,6 +5,8 @@ import os
 import numpy as np
 import ray
 import torch
+import yaml
+from pogema import GridConfig
 from torch.utils.tensorboard import SummaryWriter
 
 from core.test import test
@@ -53,6 +55,7 @@ if __name__ == '__main__':
     parser.add_argument('--load_model', action='store_true', default=False, help='choose to load model')
     parser.add_argument('--model_path', type=str, default='./results/test_model.p', help='load model path')
     parser.add_argument('--object_store_memory', type=int, default=150 * 1024 * 1024 * 1024, help='object store memory')
+    parser.add_argument('--config_path', type=str, default=None, help='path for pogema config')
 
     # Process arguments
     args = parser.parse_args()
@@ -72,6 +75,12 @@ if __name__ == '__main__':
     # import corresponding configuration , neural networks and envs
     if args.case == 'atari':
         from config.atari import game_config
+    elif args.case == 'pogema':
+        from config.pogema import PogemaConfig
+        with open(args.config_path) as f:
+            pogema_config = yaml.safe_load(f)
+        gc = GridConfig(pogema_config.dict())
+        game_config = PogemaConfig(grid_config=gc)
     else:
         raise Exception('Invalid --case option')
 

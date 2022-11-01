@@ -10,6 +10,9 @@ import numpy as np
 
 from scipy.stats import entropy
 
+from pogema import pogema_v0
+from pogema.wrappers.metrics import CSRMetric, ISRMetric, EpLengthMetric
+
 
 class LinearSchedule(object):
     def __init__(self, schedule_timesteps, final_p, initial_p=1.0):
@@ -238,6 +241,10 @@ def make_atari(env_id, skip=4, max_episode_steps=None):
     if max_episode_steps is not None:
         env = TimeLimit(env, max_episode_steps=max_episode_steps)
     return env
+
+
+def make_pogema(gc):
+    return pogema_v0(gc)
 
 
 def set_seed(seed):
