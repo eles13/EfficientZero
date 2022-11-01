@@ -34,7 +34,7 @@ class PogemaConfig(BaseConfig):
             init_zero=True,
             clip_reward=True,
             # storage efficient
-            cvt_string=True,
+            cvt_string=False,
             image_based=True,
             # lr scheduler
             lr_warm_up=0.01,
@@ -104,7 +104,7 @@ class PogemaConfig(BaseConfig):
         if self.gray_scale:
             self.image_channel = 1
         obs_shape = (3, self.gc.obs_radius*2 + 1, self.gc.obs_radius*2 + 1)
-        self.obs_shape = (obs_shape[0] * self.stacked_observations, obs_shape[1], obs_shape[2])
+        self.obs_shape = (obs_shape[0] * self.stacked_observations, obs_shape[1], obs_shape[2] * self.gc.num_agents)
 
         game = self.new_game()
         self.action_space_size = game.action_space_size

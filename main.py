@@ -18,7 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--env', required=True, help='Name of the environment')
     parser.add_argument('--result_dir', default=os.path.join(os.getcwd(), 'results'),
                         help="Directory Path to store results (default: %(default)s)")
-    parser.add_argument('--case', required=True, choices=['atari'],
+    parser.add_argument('--case', required=True, choices=['atari', 'pogema'],
                         help="It's used for switching between different domains(default: %(default)s)")
     parser.add_argument('--opr', required=True, choices=['train', 'test'])
     parser.add_argument('--amp_type', required=True, choices=['torch_amp', 'none'],
@@ -79,7 +79,8 @@ if __name__ == '__main__':
         from config.pogema import PogemaConfig
         with open(args.config_path) as f:
             pogema_config = yaml.safe_load(f)
-        gc = GridConfig(pogema_config.dict())
+        print(pogema_config)
+        gc = GridConfig(**pogema_config)
         game_config = PogemaConfig(grid_config=gc)
     else:
         raise Exception('Invalid --case option')

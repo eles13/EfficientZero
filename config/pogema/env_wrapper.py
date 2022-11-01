@@ -9,10 +9,11 @@ except ImportError:
 from pydantic import BaseModel
 
 from pogema import GridConfig
+from collections import deque
 
 
 class PogemaWrapper(Game):
-    def __init__(self, env, discount: float, cvt_string=True):
+    def __init__(self, env, gc, discount: float, cvt_string=False):
         """True Wrapper
         Parameters
         ----------
@@ -25,15 +26,38 @@ class PogemaWrapper(Game):
         """
         super().__init__(env, env.action_space.n, discount)
         self.cvt_string = cvt_string
+        self.gc = gc
+        self.structs = deque()
+        self.actions = []
 
     def legal_actions(self):
         return list(range(5))
 
     def get_max_episode_steps(self):
-        return self.env.get_max_episode_steps()
+        return self.gc.max_episode_steps
 
     def step(self, action):
-        observation, reward, done, info = self.env.step(action)
+        if len(self.structs) > 0:
+            current = self.structs.popleft()
+            observation = current['observation']
+            reward = current['reward']
+            done = current['done']
+            info = current['info']
+            self.actions.append(action)
+        else:
+            self.actions.append(action)
+            print(self.actions)
+            observation, reward, done, info = self.env.step(self.actions[:self.gc.num_agents])
+            self.structs = deque()
+            for o, r, d, i in zip(observation[1:], reward[1:], done[1:], info[1:]):
+                self.structs.append({'observation': o, 'reward': r, 'done': d, 'info': i})
+            observation = observation[0]
+            reward = reward[0]
+            done = done[0]
+            info = info[0]
+            self.actions = []
+        #observation = np.concatenate(observation, axis=-1)
+        observation = observation.transpose(2,1,0)
         observation = observation.astype(np.uint8)
 
         if self.cvt_string:
@@ -43,7 +67,13 @@ class PogemaWrapper(Game):
 
     def reset(self, **kwargs):
         observation = self.env.reset(**kwargs)
+        #observation = np.concatenate(observation, axis=-1)
+        self.structs = deque()
+        for o in observation[1:]:
+            self.structs.append({'observation': o, 'reward': 0, 'done': False, 'info': {}})
+        observation = observation[0].transpose(2,1,0)
         observation = observation.astype(np.uint8)
+        self.actions = []
 
         if self.cvt_string:
             observation = arr_to_str(observation)

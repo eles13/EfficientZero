@@ -1,6 +1,6 @@
 max_episode_steps: 64
 obs_radius: 5
-num_agents: 32
+num_agents: 1
 density: 0.3
 size: 64
 seed: 62
